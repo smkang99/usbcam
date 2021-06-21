@@ -146,6 +146,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                 Log.d(TAG, "onPreviewResult: "+nv21Yuv.length);
             }
         });
+        toggleHideyBar();
     }
 
     private void initView() {
@@ -215,6 +216,37 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         return true;
     }
 
+    /**
+     * Detects and toggles immersive mode.
+     */
+    public void toggleHideyBar() {
+        // BEGIN_INCLUDE (get_current_ui_flags)
+        // The UI options currently enabled are represented by a bitfield.
+        // getSystemUiVisibility() gives us that bitfield.
+        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+        int newUiOptions = uiOptions;
+        // END_INCLUDE (get_current_ui_flags)
+        // BEGIN_INCLUDE (toggle_ui_flags)
+        boolean isImmersiveModeEnabled =
+                ((uiOptions | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY) == uiOptions);
+        if (isImmersiveModeEnabled) {
+            Log.i(TAG, "Turning immersive mode mode off. ");
+        } else {
+            Log.i(TAG, "Turning immersive mode mode on.");
+        }
+
+        // Immersive mode: Backward compatible to KitKat (API 19).
+        // Note that this flag doesn't do anything by itself, it only augments the behavior
+        // of HIDE_NAVIGATION and FLAG_FULLSCREEN.  For the purposes of this sample
+        // all three flags are being toggled together.
+        // This sample uses the "sticky" form of immersive mode, which will let the user swipe
+        // the bars back in again, but will automatically make them disappear a few seconds later.
+        newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        //END_INCLUDE (set_ui_flags)
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -243,6 +275,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 
                 break;
             case R.id.menu_recording:
+
                 if (mCameraHelper == null || !mCameraHelper.isCameraOpened()) {
                     showShortMsg("sorry,camera open failed");
                     return super.onOptionsItemSelected(item);
@@ -297,8 +330,10 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                     return super.onOptionsItemSelected(item);
                 }
                 showResolutionListDialog();
+                toggleHideyBar();
                 break;
             case R.id.menu_focus:
+
                 if (mCameraHelper == null || !mCameraHelper.isCameraOpened()) {
                     showShortMsg("sorry,camera open failed");
                     return super.onOptionsItemSelected(item);
