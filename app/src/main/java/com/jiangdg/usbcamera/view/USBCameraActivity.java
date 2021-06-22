@@ -146,7 +146,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                 Log.d(TAG, "onPreviewResult: "+nv21Yuv.length);
             }
         });
-        toggleHideyBar();
+        //toggleHideyBar();
     }
 
     private void initView() {
